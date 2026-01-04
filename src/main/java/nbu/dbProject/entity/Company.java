@@ -5,12 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import java.util.List;
 
 @Entity
-public class Company {
-
-    @Id
-    @GeneratedValue
-    private Long id;
-
+public class Company extends BaseEntity {
     @NotBlank
     private String name;
 

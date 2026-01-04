@@ -4,12 +4,7 @@ import jakarta.persistence.*;
 import java.util.List;
 
 @Entity
-public class Building {
-
-    @Id
-    @GeneratedValue
-    private Long id;
-
+public class Building extends BaseEntity {
     private String address;
     private int floors;
 

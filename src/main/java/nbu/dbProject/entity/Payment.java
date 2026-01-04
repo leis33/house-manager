@@ -4,12 +4,7 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @Entity
-public class Payment {
-
-    @Id
-    @GeneratedValue
-    private Long id;
-
+public class Payment extends BaseEntity {
     private double amount;
     private LocalDate paymentDate;
 
