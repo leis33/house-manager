@@ -16,6 +16,7 @@ dependencies {
     implementation ("org.hibernate.validator:hibernate-validator:9.1.0.Final")
     implementation("org.hibernate.validator:hibernate-validator-annotation-processor:9.1.0.Final")
     implementation("org.glassfish.expressly:expressly:6.0.0")
+    implementation("jakarta.persistence:jakarta.persistence-api:3.1.0")
     // Annotation processor for metamodel
     annotationProcessor("org.hibernate.orm:hibernate-processor:7.1.0.Final")
 
