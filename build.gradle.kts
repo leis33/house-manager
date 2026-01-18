@@ -10,22 +10,21 @@ repositories {
 }
 
 dependencies {
-    implementation("org.hibernate.orm:hibernate-core:7.1.0.Final")
-    implementation("com.mysql:mysql-connector-j:9.4.0")
-    implementation ("org.apache.logging.log4j:log4j-core:2.17.1")
-    implementation ("org.hibernate.validator:hibernate-validator:9.1.0.Final")
-    implementation("org.hibernate.validator:hibernate-validator-annotation-processor:9.1.0.Final")
-    implementation("org.glassfish.expressly:expressly:6.0.0")
+    implementation("org.hibernate.orm:hibernate-core:6.4.1.Final")
+    implementation("com.mysql:mysql-connector-j:8.2.0")
     implementation("jakarta.persistence:jakarta.persistence-api:3.1.0")
-    // Annotation processor for metamodel
-    annotationProcessor("org.hibernate.orm:hibernate-processor:7.1.0.Final")
+    implementation("jakarta.validation:jakarta.validation-api:3.0.2")
+    implementation("org.glassfish.expressly:expressly:5.0.0")
+    implementation("org.hibernate.validator:hibernate-validator:8.0.1.Final")
+
+    implementation("org.apache.logging.log4j:log4j-api:2.22.1")
+    implementation("org.apache.logging.log4j:log4j-core:2.22.1")
+
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
     compileOnly("org.projectlombok:lombok:1.18.38")
     annotationProcessor("org.projectlombok:lombok:1.18.38")
-    testImplementation(platform("org.junit:junit-bom:5.10.0"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
-    testImplementation("com.h2database:h2:2.3.232")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 tasks.test {
