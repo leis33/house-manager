@@ -3,31 +3,72 @@ package nbu.dbProject.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
-import lombok.*;
-import nbu.dbProject.validator.InvalidNames;
+import lombok.Getter;
+import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
-@Entity
-@Table(name = "company")
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
-@ToString(callSuper = true)
-@Builder
+@Entity
+@Table(name = "companies")
 public class Company extends BaseEntity {
 
-    @Column(name = "name")
-    @InvalidNames(message = "The name is not valid!")
-    @NotBlank(message = "Company name cannot be blank!")
-    @Size(max = 20, message = "Company name has to be with up to 20 characters!")
-    @Pattern(regexp = "^([A-Z]).*", message = "Company name has to start with capital letter!")
+    @NotBlank(message = "Company name is required")
+    @Column(nullable = false)
     private String name;
 
-    private double revenue;
+    @NotBlank(message = "Registration number is required")
+    @Pattern(regexp = "^[0-9]{9,13}$", message = "Registration number must be 9-13 digits")
+    @Column(nullable = false, unique = true)
+    private String registrationNumber;
 
-    @OneToMany(mappedBy = "company")
-    private List<Employee> employees;
+    @NotBlank(message = "Address is required")
+    @Column(nullable = false)
+    private String address;
+
+    @Pattern(regexp = "^[+]?[0-9]{10,15}$", message = "Invalid phone number")
+    private String phoneNumber;
+
+    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Employee> employees = new ArrayList<>();
+
+    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Building> buildings = new ArrayList<>();
+
+    public Company() {}
+
+    public Company(String name, String registrationNumber, String address, String phoneNumber) {
+        this.name = name;
+        this.registrationNumber = registrationNumber;
+        this.address = address;
+        this.phoneNumber = phoneNumber;
+    }
+
+    public void addEmployee(Employee employee) {
+        employees.add(employee);
+        employee.setCompany(this);
+    }
+
+    public void removeEmployee(Employee employee) {
+        employees.remove(employee);
+        employee.setCompany(null);
+    }
+
+    public void addBuilding(Building building) {
+        buildings.add(building);
+        building.setCompany(this);
+    }
+
+    public void removeBuilding(Building building) {
+        buildings.remove(building);
+        building.setCompany(null);
+    }
+
+    @Override
+    public String toString() {
+        return "Company{id=" + id + ", name='" + name + "', registrationNumber='" +
+                registrationNumber + "'}";
+    }
 }

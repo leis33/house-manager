@@ -1,22 +1,47 @@
 package nbu.dbProject.entity;
 
 import jakarta.persistence.*;
-import java.time.LocalDate;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
 
 @Entity
+@Getter
+@Setter
+@Table(name = "payments")
 public class Payment extends BaseEntity {
+
+    @NotNull(message = "Fee is required")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fee_id", nullable = false)
+    private Fee fee;
+
+    @Min(value = 0, message = "Amount cannot be negative")
+    @Column(nullable = false)
     private double amount;
-    private LocalDate paymentDate;
 
-    @ManyToOne
-    private Company company;
+    @NotNull(message = "Payment date is required")
+    @Column(nullable = false)
+    private LocalDateTime paymentDate;
 
-    @ManyToOne
-    private Employee employee;
+    @Column(length = 500)
+    private String notes;
 
-    @ManyToOne
-    private Building building;
+    public Payment() {}
 
-    @ManyToOne
-    private Apartment apartment;
+    public Payment(Fee fee, double amount, LocalDateTime paymentDate, String notes) {
+        this.fee = fee;
+        this.amount = amount;
+        this.paymentDate = paymentDate;
+        this.notes = notes;
+    }
+
+    @Override
+    public String toString() {
+        return "Payment{id=" + id + ", amount=" + amount +
+                ", date=" + paymentDate + "}";
+    }
 }
