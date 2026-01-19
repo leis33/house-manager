@@ -29,4 +29,10 @@ public class SessionFactoryUtil {
         }
         return sessionFactory;
     }
+
+    public static void shutdown() {
+        if (sessionFactory != null) {
+            sessionFactory.close();
+        }
+    }
 }
