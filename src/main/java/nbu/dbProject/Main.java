@@ -1,6 +1,5 @@
 package nbu.dbProject;
 
-import nbu.dbProject.dao.CompanyDao;
 import nbu.dbProject.entity.Company;
 
 public class Main {
