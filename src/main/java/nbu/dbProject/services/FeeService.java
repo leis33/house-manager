@@ -14,16 +14,14 @@ import java.time.LocalDate;
 import java.util.List;
 
 public class FeeService {
+    private static final double BASE_RATE_PER_SQM = 2.0;
+    private static final double RESIDENT_OVER_7_CHARGE = 10.0;
+    private static final double PET_COMMON_AREA_CHARGE = 15.0;
 
     private static final Logger logger = LogManager.getLogger(FeeService.class);
     private final FeeRepository feeRepository;
     private final BuildingRepository buildingRepository;
     private final ApartmentRepository apartmentRepository;
-
-    // Fee calculation constants
-    private static final double BASE_RATE_PER_SQM = 2.0;
-    private static final double RESIDENT_OVER_7_CHARGE = 10.0;
-    private static final double PET_COMMON_AREA_CHARGE = 15.0;
 
     public FeeService() {
         this.feeRepository = new FeeRepository();
@@ -44,7 +42,6 @@ public class FeeService {
             throw new IllegalArgumentException("Apartment does not belong to this building");
         }
 
-        // Calculate fee components
         double baseAmount = calculateBaseAmount(apartment);
         double residentCharge = calculateResidentCharge(apartment, building);
         double petCharge = calculatePetCharge(apartment);
