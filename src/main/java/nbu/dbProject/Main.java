@@ -378,7 +378,7 @@ public class Main {
         System.out.print("Enter building ID: ");
         Long buildingId = getLongInput();
 
-        List<Apartment> apartments = apartmentService.getAllApartments();
+        List<Apartment> apartments = apartmentService.getApartmentsByBuilding(buildingId);
         System.out.println("\n=== Apartments ===");
         for (Apartment apt : apartments) {
             System.out.println("ID: " + apt.getId() + " | Number: " + apt.getApartmentNumber() +
