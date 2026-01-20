@@ -39,11 +39,4 @@ public class ValidationUtil {
             return false;
         }
     }
-
-    public static void shutdown() {
-        if (validatorFactory != null) {
-            validatorFactory.close();
-            logger.info("ValidatorFactory closed");
-        }
-    }
 }

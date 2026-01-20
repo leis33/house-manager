@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+
 public class FeeRepository {
 
     public Fee save(Fee fee) {
@@ -53,13 +54,26 @@ public class FeeRepository {
 
     public Optional<Fee> findById(Long id) {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            return Optional.ofNullable(session.get(Fee.class, id));
+            String hql = "SELECT f FROM Fee f " +
+                    "LEFT JOIN FETCH f.building b " +
+                    "LEFT JOIN FETCH b.employee " +
+                    "LEFT JOIN FETCH b.company " +
+                    "LEFT JOIN FETCH f.apartment " +
+                    "WHERE f.id = :id";
+            Query<Fee> query = session.createQuery(hql, Fee.class);
+            query.setParameter("id", id);
+            return query.uniqueResultOptional();
         }
     }
 
     public List<Fee> findAll() {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            return session.createQuery("FROM Fee", Fee.class).list();
+            String hql = "SELECT DISTINCT f FROM Fee f " +
+                    "LEFT JOIN FETCH f.building b " +
+                    "LEFT JOIN FETCH b.employee " +
+                    "LEFT JOIN FETCH b.company " +
+                    "LEFT JOIN FETCH f.apartment";
+            return session.createQuery(hql, Fee.class).list();
         } catch (Exception e) {
             return new ArrayList<>();
         }
@@ -67,8 +81,13 @@ public class FeeRepository {
 
     public List<Fee> findByBuildingId(Long buildingId) {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            Query<Fee> query = session.createQuery(
-                    "FROM Fee f WHERE f.building.id = :buildingId", Fee.class);
+            String hql = "SELECT DISTINCT f FROM Fee f " +
+                    "LEFT JOIN FETCH f.building b " +
+                    "LEFT JOIN FETCH b.employee " +
+                    "LEFT JOIN FETCH b.company " +
+                    "LEFT JOIN FETCH f.apartment " +
+                    "WHERE f.building.id = :buildingId";
+            Query<Fee> query = session.createQuery(hql, Fee.class);
             query.setParameter("buildingId", buildingId);
             return query.list();
         }
@@ -76,8 +95,13 @@ public class FeeRepository {
 
     public List<Fee> findByApartmentId(Long apartmentId) {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            Query<Fee> query = session.createQuery(
-                    "FROM Fee f WHERE f.apartment.id = :apartmentId", Fee.class);
+            String hql = "SELECT DISTINCT f FROM Fee f " +
+                    "LEFT JOIN FETCH f.building b " +
+                    "LEFT JOIN FETCH b.employee " +
+                    "LEFT JOIN FETCH b.company " +
+                    "LEFT JOIN FETCH f.apartment " +
+                    "WHERE f.apartment.id = :apartmentId";
+            Query<Fee> query = session.createQuery(hql, Fee.class);
             query.setParameter("apartmentId", apartmentId);
             return query.list();
         }
@@ -85,7 +109,13 @@ public class FeeRepository {
 
     public List<Fee> findUnpaidFees() {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            return session.createQuery("FROM Fee f WHERE f.paid = false", Fee.class).list();
+            String hql = "SELECT DISTINCT f FROM Fee f " +
+                    "LEFT JOIN FETCH f.building b " +
+                    "LEFT JOIN FETCH b.employee " +
+                    "LEFT JOIN FETCH b.company " +
+                    "LEFT JOIN FETCH f.apartment " +
+                    "WHERE f.paid = false";
+            return session.createQuery(hql, Fee.class).list();
         }
     }
 

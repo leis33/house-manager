@@ -18,7 +18,8 @@ public class PaymentRepository {
             transaction = session.beginTransaction();
             session.persist(payment);
             transaction.commit();
-            return payment;
+
+            return findById(payment.getId()).orElse(payment);
         } catch (Exception e) {
             if (transaction != null) transaction.rollback();
             throw new RuntimeException("Error saving payment", e);
@@ -40,13 +41,28 @@ public class PaymentRepository {
 
     public Optional<Payment> findById(Long id) {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            return Optional.ofNullable(session.get(Payment.class, id));
+            String hql = "SELECT p FROM Payment p " +
+                    "LEFT JOIN FETCH p.fee f " +
+                    "LEFT JOIN FETCH f.building b " +
+                    "LEFT JOIN FETCH b.employee " +
+                    "LEFT JOIN FETCH b.company " +
+                    "LEFT JOIN FETCH f.apartment " +
+                    "WHERE p.id = :id";
+            Query<Payment> query = session.createQuery(hql, Payment.class);
+            query.setParameter("id", id);
+            return query.uniqueResultOptional();
         }
     }
 
     public List<Payment> findAll() {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            return session.createQuery("FROM Payment", Payment.class).list();
+            String hql = "SELECT DISTINCT p FROM Payment p " +
+                    "LEFT JOIN FETCH p.fee f " +
+                    "LEFT JOIN FETCH f.building b " +
+                    "LEFT JOIN FETCH b.employee " +
+                    "LEFT JOIN FETCH b.company " +
+                    "LEFT JOIN FETCH f.apartment";
+            return session.createQuery(hql, Payment.class).list();
         } catch (Exception e) {
             return new ArrayList<>();
         }
@@ -54,8 +70,14 @@ public class PaymentRepository {
 
     public List<Payment> findByFeeId(Long feeId) {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            Query<Payment> query = session.createQuery(
-                    "FROM Payment p WHERE p.fee.id = :feeId", Payment.class);
+            String hql = "SELECT DISTINCT p FROM Payment p " +
+                    "LEFT JOIN FETCH p.fee f " +
+                    "LEFT JOIN FETCH f.building b " +
+                    "LEFT JOIN FETCH b.employee " +
+                    "LEFT JOIN FETCH b.company " +
+                    "LEFT JOIN FETCH f.apartment " +
+                    "WHERE p.fee.id = :feeId";
+            Query<Payment> query = session.createQuery(hql, Payment.class);
             query.setParameter("feeId", feeId);
             return query.list();
         }

@@ -30,7 +30,7 @@ public class Main {
         logger.info("Starting Electronic Home Manager Application");
 
         try {
-            demonstrateApplication();
+//            demonstrateApplication();
             mainMenu();
 
         } catch (Exception e) {
@@ -50,21 +50,12 @@ public class Main {
             // company
             Company company = new Company(
                     "Elite Property Management",
-                    "123456789",
+                    "123456738",
                     "Sofia, Bulgaria",
                     "+359888123456"
             );
             company = companyService.createCompany(company);
             System.out.println("Created company: " + company.getName());
-
-            // employees
-            Employee emp1 = new Employee("Ivan", "Petrov", "ivan@example.com", "+359888111111");
-            emp1 = employeeService.createEmployee(emp1, company.getId());
-
-            Employee emp2 = new Employee("Maria", "Ivanova", "maria@example.com", "+359888222222");
-            emp2 = employeeService.createEmployee(emp2, company.getId());
-
-            System.out.println("Created employees: " + emp1.getFullName() + ", " + emp2.getFullName());
 
             // building
             Building building = new Building(
@@ -78,6 +69,15 @@ public class Main {
             building = buildingService.createBuilding(building, company.getId());
             System.out.println("Created building: " + building.getAddress());
             System.out.println("Assigned to employee: " + building.getEmployee().getFullName());
+
+            // employees
+            Employee emp1 = new Employee("Ivan", "Petrov", "ivan@example.com", "+359888111111");
+            emp1 = employeeService.createEmployee(emp1, company.getId());
+
+            Employee emp2 = new Employee("Maria", "Ivanova", "maria@example.com", "+359888222222");
+            emp2 = employeeService.createEmployee(emp2, company.getId());
+
+            System.out.println("Created employees: " + emp1.getFullName() + ", " + emp2.getFullName());
 
             // owner
             Owner owner = new Owner("Georgi", "Dimitrov", 45, "+359888333333", "georgi@example.com");
@@ -192,7 +192,7 @@ public class Main {
     }
 
     private static void createCompany() {
-        scanner.nextLine(); // consume newline
+        scanner.nextLine();
         System.out.print("Company name: ");
         String name = scanner.nextLine();
         System.out.print("Registration number: ");
@@ -378,7 +378,7 @@ public class Main {
         System.out.print("Enter building ID: ");
         Long buildingId = getLongInput();
 
-        List<Apartment> apartments = apartmentService.getApartmentsByBuilding(buildingId);
+        List<Apartment> apartments = apartmentService.getAllApartments();
         System.out.println("\n=== Apartments ===");
         for (Apartment apt : apartments) {
             System.out.println("ID: " + apt.getId() + " | Number: " + apt.getApartmentNumber() +
@@ -581,7 +581,6 @@ public class Main {
         System.out.println("4. Payment amounts by company");
         System.out.println("5. Payment amounts by building");
         System.out.println("6. Payment amounts by employee");
-        System.out.println("7. Companies by revenue");
         System.out.println("0. Back");
         System.out.print("Select option: ");
 
@@ -614,7 +613,6 @@ public class Main {
                 Long companyId = getLongInput();
                 System.out.println(reportService.paymentAmountsByEmployeeReport(companyId));
             }
-            case 7 -> System.out.println(reportService.companiesByRevenueReport());
         }
     }
 

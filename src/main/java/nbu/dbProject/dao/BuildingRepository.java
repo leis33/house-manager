@@ -23,7 +23,8 @@ public class BuildingRepository {
             session.persist(building);
             transaction.commit();
             logger.info("Building saved: {}", building);
-            return building;
+
+            return findById(building.getId()).orElse(building);
         } catch (Exception e) {
             if (transaction != null) {
                 transaction.rollback();
@@ -40,7 +41,8 @@ public class BuildingRepository {
             Building updated = session.merge(building);
             transaction.commit();
             logger.info("Building updated: {}", updated);
-            return updated;
+
+            return findById(updated.getId()).orElse(updated);
         } catch (Exception e) {
             if (transaction != null) {
                 transaction.rollback();
@@ -71,7 +73,23 @@ public class BuildingRepository {
 
     public Optional<Building> findById(Long id) {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            Building building = session.get(Building.class, id);
+            String hql = "SELECT b FROM Building b " +
+                    "LEFT JOIN FETCH b.employee " +
+                    "LEFT JOIN FETCH b.company " +
+                    "WHERE b.id = :id";
+            Query<Building> query = session.createQuery(hql, Building.class);
+            query.setParameter("id", id);
+            Building building = query.uniqueResult();
+
+            if (building != null) {
+                String hql2 = "SELECT b FROM Building b " +
+                        "LEFT JOIN FETCH b.apartments " +
+                        "WHERE b.id = :id";
+                Query<Building> query2 = session.createQuery(hql2, Building.class);
+                query2.setParameter("id", id);
+                query2.uniqueResult();
+            }
+
             return Optional.ofNullable(building);
         } catch (Exception e) {
             logger.error("Error finding building by id", e);
@@ -81,7 +99,10 @@ public class BuildingRepository {
 
     public List<Building> findAll() {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            return session.createQuery("FROM Building", Building.class).list();
+            String hql = "SELECT DISTINCT b FROM Building b " +
+                    "LEFT JOIN FETCH b.employee " +
+                    "LEFT JOIN FETCH b.company";
+            return session.createQuery(hql, Building.class).list();
         } catch (Exception e) {
             logger.error("Error finding all buildings", e);
             return new ArrayList<>();
@@ -90,8 +111,11 @@ public class BuildingRepository {
 
     public List<Building> findByEmployeeId(Long employeeId) {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            Query<Building> query = session.createQuery(
-                    "FROM Building b WHERE b.employee.id = :employeeId", Building.class);
+            String hql = "SELECT b FROM Building b " +
+                    "LEFT JOIN FETCH b.apartments " +
+                    "LEFT JOIN FETCH b.company " +
+                    "WHERE b.employee.id = :employeeId";
+            Query<Building> query = session.createQuery(hql, Building.class);
             query.setParameter("employeeId", employeeId);
             return query.list();
         } catch (Exception e) {
@@ -102,8 +126,11 @@ public class BuildingRepository {
 
     public List<Building> findByCompanyId(Long companyId) {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            Query<Building> query = session.createQuery(
-                    "FROM Building b WHERE b.company.id = :companyId", Building.class);
+            String hql = "SELECT DISTINCT b FROM Building b " +
+                    "LEFT JOIN FETCH b.employee " +
+                    "LEFT JOIN FETCH b.company " +
+                    "WHERE b.company.id = :companyId";
+            Query<Building> query = session.createQuery(hql, Building.class);
             query.setParameter("companyId", companyId);
             return query.list();
         } catch (Exception e) {

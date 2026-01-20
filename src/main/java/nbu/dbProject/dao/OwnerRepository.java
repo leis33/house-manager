@@ -4,6 +4,7 @@ import nbu.dbProject.configuration.SessionFactoryUtil;
 import nbu.dbProject.entity.Owner;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.query.Query;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +53,12 @@ public class OwnerRepository {
 
     public Optional<Owner> findById(Long id) {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            return Optional.ofNullable(session.get(Owner.class, id));
+            String hql = "SELECT o FROM Owner o " +
+                    "LEFT JOIN FETCH o.apartments " +
+                    "WHERE o.id = :id";
+            Query<Owner> query = session.createQuery(hql, Owner.class);
+            query.setParameter("id", id);
+            return query.uniqueResultOptional();
         }
     }
 
@@ -64,4 +70,3 @@ public class OwnerRepository {
         }
     }
 }
-

@@ -1,6 +1,7 @@
 package nbu.dbProject.dao;
 
 import nbu.dbProject.configuration.SessionFactoryUtil;
+import nbu.dbProject.entity.Building;
 import nbu.dbProject.entity.Employee;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -71,8 +72,12 @@ public class EmployeeRepository {
 
     public Optional<Employee> findById(Long id) {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            Employee employee = session.get(Employee.class, id);
-            return Optional.ofNullable(employee);
+            String hql = "SELECT e FROM Employee e " +
+                    "LEFT JOIN FETCH e.buildings " +
+                    "WHERE e.id = :id";
+            Query<Employee> query = session.createQuery(hql, Employee.class);
+            query.setParameter("id", id);
+            return query.uniqueResultOptional();
         } catch (Exception e) {
             logger.error("Error finding employee by id", e);
             return Optional.empty();
@@ -90,9 +95,10 @@ public class EmployeeRepository {
 
     public List<Employee> findByCompanyId(Long companyId) {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            Query<Employee> query = session.createQuery(
-                    "FROM Employee e WHERE e.company.id = :companyId AND e.active = true",
-                    Employee.class);
+            String hql = "SELECT DISTINCT e FROM Employee e " +
+                    "LEFT JOIN FETCH e.buildings " +
+                    "WHERE e.company.id = :companyId AND e.active = true";
+            Query<Employee> query = session.createQuery(hql, Employee.class);
             query.setParameter("companyId", companyId);
             return query.list();
         } catch (Exception e) {
@@ -104,6 +110,7 @@ public class EmployeeRepository {
     public Optional<Employee> findEmployeeWithFewestBuildings(Long companyId) {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             String hql = "SELECT e FROM Employee e " +
+                    "LEFT JOIN FETCH e.buildings " +
                     "WHERE e.company.id = :companyId AND e.active = true " +
                     "ORDER BY SIZE(e.buildings) ASC";
             Query<Employee> query = session.createQuery(hql, Employee.class);
@@ -118,10 +125,24 @@ public class EmployeeRepository {
 
     public List<Employee> findAllSortedByNameAndBuildings() {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            String hql = "FROM Employee e ORDER BY e.lastName, e.firstName, SIZE(e.buildings) DESC";
+            String hql = "SELECT DISTINCT e FROM Employee e " +
+                    "LEFT JOIN FETCH e.buildings " +
+                    "ORDER BY e.lastName, e.firstName, SIZE(e.buildings) DESC";
             return session.createQuery(hql, Employee.class).list();
         } catch (Exception e) {
             logger.error("Error finding employees sorted", e);
+            return new ArrayList<>();
+        }
+    }
+
+    public List<Building> getBuildingsForEmployee(Long employeeId) {
+        try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
+            String hql = "SELECT b FROM Building b WHERE b.employee.id = :employeeId";
+            Query<Building> query = session.createQuery(hql, Building.class);
+            query.setParameter("employeeId", employeeId);
+            return query.list();
+        } catch (Exception e) {
+            logger.error("Error getting buildings for employee", e);
             return new ArrayList<>();
         }
     }

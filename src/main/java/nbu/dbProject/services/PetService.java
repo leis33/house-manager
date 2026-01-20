@@ -26,7 +26,8 @@ public class PetService {
         Apartment apartment = apartmentRepository.findById(apartmentId)
                 .orElseThrow(() -> new IllegalArgumentException("Apartment not found"));
 
-        pet.setApartment(apartment);
+        apartment.addPet(pet);
+
         ValidationUtil.validate(pet);
         return petRepository.save(pet);
     }
@@ -39,6 +40,14 @@ public class PetService {
 
     public void deletePet(Long id) {
         logger.info("Deleting pet: {}", id);
+
+        Pet pet = petRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Pet not found"));
+
+        if (pet.getApartment() != null) {
+            pet.getApartment().removePet(pet);
+        }
+
         petRepository.delete(id);
     }
 

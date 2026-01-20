@@ -33,7 +33,6 @@ public class BuildingService {
 
         building.setCompany(company);
 
-        // Assign to employee with fewest buildings
         Employee employee = employeeRepository.findEmployeeWithFewestBuildings(companyId)
                 .orElseThrow(() -> new IllegalStateException(
                         "No active employees available to assign building"));

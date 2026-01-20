@@ -53,13 +53,20 @@ public class ResidentRepository {
 
     public Optional<Resident> findById(Long id) {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            return Optional.ofNullable(session.get(Resident.class, id));
+            String hql = "SELECT r FROM Resident r " +
+                    "LEFT JOIN FETCH r.apartment " +
+                    "WHERE r.id = :id";
+            Query<Resident> query = session.createQuery(hql, Resident.class);
+            query.setParameter("id", id);
+            return query.uniqueResultOptional();
         }
     }
 
     public List<Resident> findAll() {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            return session.createQuery("FROM Resident", Resident.class).list();
+            String hql = "SELECT r FROM Resident r " +
+                    "LEFT JOIN FETCH r.apartment";
+            return session.createQuery(hql, Resident.class).list();
         } catch (Exception e) {
             return new ArrayList<>();
         }
@@ -67,7 +74,9 @@ public class ResidentRepository {
 
     public List<Resident> findByBuildingId(Long buildingId) {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            String hql = "SELECT r FROM Resident r WHERE r.apartment.building.id = :buildingId";
+            String hql = "SELECT r FROM Resident r " +
+                    "LEFT JOIN FETCH r.apartment " +
+                    "WHERE r.apartment.building.id = :buildingId";
             Query<Resident> query = session.createQuery(hql, Resident.class);
             query.setParameter("buildingId", buildingId);
             return query.list();

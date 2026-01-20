@@ -57,7 +57,23 @@ public class ApartmentRepository {
 
     public Optional<Apartment> findById(Long id) {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            return Optional.ofNullable(session.get(Apartment.class, id));
+            String hql = "SELECT a FROM Apartment a " +
+                    "LEFT JOIN FETCH a.residents " +
+                    "WHERE a.id = :id";
+            Query<Apartment> query = session.createQuery(hql, Apartment.class);
+            query.setParameter("id", id);
+            Apartment apartment = query.uniqueResult();
+
+            if (apartment != null) {
+                String hql2 = "SELECT a FROM Apartment a " +
+                        "LEFT JOIN FETCH a.pets " +
+                        "WHERE a.id = :id";
+                Query<Apartment> query2 = session.createQuery(hql2, Apartment.class);
+                query2.setParameter("id", id);
+                query2.uniqueResult();
+            }
+
+            return Optional.ofNullable(apartment);
         }
     }
 
@@ -71,10 +87,23 @@ public class ApartmentRepository {
 
     public List<Apartment> findByBuildingId(Long buildingId) {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            Query<Apartment> query = session.createQuery(
-                    "FROM Apartment a WHERE a.building.id = :buildingId", Apartment.class);
+            String hql = "SELECT DISTINCT a FROM Apartment a " +
+                    "LEFT JOIN FETCH a.residents " +
+                    "WHERE a.building.id = :buildingId";
+            Query<Apartment> query = session.createQuery(hql, Apartment.class);
             query.setParameter("buildingId", buildingId);
-            return query.list();
+            List<Apartment> apartments = query.list();
+
+            if (!apartments.isEmpty()) {
+                String hql2 = "SELECT DISTINCT a FROM Apartment a " +
+                        "LEFT JOIN FETCH a.pets " +
+                        "WHERE a.building.id = :buildingId";
+                Query<Apartment> query2 = session.createQuery(hql2, Apartment.class);
+                query2.setParameter("buildingId", buildingId);
+                query2.list();
+            }
+
+            return apartments;
         } catch (Exception e) {
             return new ArrayList<>();
         }

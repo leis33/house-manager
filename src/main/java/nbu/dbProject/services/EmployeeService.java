@@ -11,6 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.List;
+import java.util.ArrayList;
 
 public class EmployeeService {
 
@@ -40,7 +41,7 @@ public class EmployeeService {
     public Employee updateEmployee(Employee employee) {
         logger.info("Updating employee: {}", employee.getId());
 
-        if (!employeeRepository.findById(employee.getId()).isPresent()) {
+        if (employeeRepository.findById(employee.getId()).isEmpty()) {
             throw new IllegalArgumentException("Employee not found");
         }
 
@@ -54,7 +55,6 @@ public class EmployeeService {
         Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found"));
 
-        // Redistribute buildings to other employees
         if (!employee.getBuildings().isEmpty()) {
             redistributeBuildings(employee);
         }
@@ -72,17 +72,21 @@ public class EmployeeService {
         logger.info("Redistributing {} buildings from employee {}",
                 buildings.size(), departingEmployee.getId());
 
-        for (Building building : buildings) {
+        List<Building> buildingsToRedistribute = new ArrayList<>(buildings);
+
+        for (Building building : buildingsToRedistribute) {
             Employee targetEmployee = employeeRepository
                     .findEmployeeWithFewestBuildings(companyId)
                     .orElseThrow(() -> new IllegalStateException(
                             "No active employees available for building redistribution"));
 
-            building.setEmployee(targetEmployee);
+            departingEmployee.removeBuilding(building);
+            targetEmployee.addBuilding(building);
+
             buildingRepository.update(building);
 
-            logger.info("Building {} reassigned to employee {}",
-                    building.getId(), targetEmployee.getId());
+            logger.info("Building {} reassigned from employee {} to employee {}",
+                    building.getId(), departingEmployee.getId(), targetEmployee.getId());
         }
     }
 

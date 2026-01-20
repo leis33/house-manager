@@ -31,7 +31,6 @@ public class ReportService {
         this.feeRepository = new FeeRepository();
     }
 
-    // Buildings served by each employee in a company
     public String buildingsByEmployeeReport(Long companyId) {
         logger.info("Generating buildings by employee report for company {}", companyId);
 
@@ -64,7 +63,6 @@ public class ReportService {
         return report.toString();
     }
 
-    // Apartments in a building
     public String apartmentsInBuildingReport(Long buildingId) {
         logger.info("Generating apartments report for building {}", buildingId);
 
@@ -82,10 +80,6 @@ public class ReportService {
             report.append("Apartment: ").append(apartment.getApartmentNumber()).append("\n");
             report.append("  Floor: ").append(apartment.getFloor()).append("\n");
             report.append("  Area: ").append(apartment.getArea()).append(" sq.m\n");
-            report.append("  Owner: ")
-                    .append(apartment.getOwner() != null ?
-                            apartment.getOwner().getFullName() : "N/A")
-                    .append("\n");
             report.append("  Residents: ").append(apartment.getResidents().size()).append("\n");
             report.append("  Pets: ").append(apartment.getPets().size()).append("\n\n");
         }
@@ -93,7 +87,6 @@ public class ReportService {
         return report.toString();
     }
 
-    // Residents in a building sorted by name and age
     public String residentsInBuildingReport(Long buildingId) {
         logger.info("Generating residents report for building {}", buildingId);
 
@@ -102,7 +95,6 @@ public class ReportService {
 
         List<Resident> residents = residentRepository.findByBuildingId(buildingId);
 
-        // Sort by name and age
         residents.sort(Comparator.comparing(Resident::getLastName)
                 .thenComparing(Resident::getFirstName)
                 .thenComparing(Resident::getAge));
@@ -126,7 +118,6 @@ public class ReportService {
         return report.toString();
     }
 
-    // Payment amounts by company
     public String paymentAmountsByCompanyReport() {
         logger.info("Generating payment amounts by company report");
 
@@ -149,7 +140,6 @@ public class ReportService {
         return report.toString();
     }
 
-    // Payment amounts by building
     public String paymentAmountsByBuildingReport(Long companyId) {
         logger.info("Generating payment amounts by building report");
 
@@ -172,7 +162,6 @@ public class ReportService {
         return report.toString();
     }
 
-    // Payment amounts by employee
     public String paymentAmountsByEmployeeReport(Long companyId) {
         logger.info("Generating payment amounts by employee report");
 
@@ -201,7 +190,6 @@ public class ReportService {
         return report.toString();
     }
 
-    // Companies sorted by revenue
     public String companiesByRevenueReport() {
         logger.info("Generating companies by revenue report");
 

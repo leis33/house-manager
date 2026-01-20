@@ -26,7 +26,8 @@ public class ApartmentService {
         Building building = buildingRepository.findById(buildingId)
                 .orElseThrow(() -> new IllegalArgumentException("Building not found"));
 
-        apartment.setBuilding(building);
+        building.addApartment(apartment);
+
         ValidationUtil.validate(apartment);
         return apartmentRepository.save(apartment);
     }
@@ -39,6 +40,14 @@ public class ApartmentService {
 
     public void deleteApartment(Long id) {
         logger.info("Deleting apartment: {}", id);
+
+        Apartment apartment = apartmentRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Apartment not found"));
+
+        if (apartment.getBuilding() != null) {
+            apartment.getBuilding().removeApartment(apartment);
+        }
+
         apartmentRepository.delete(id);
     }
 

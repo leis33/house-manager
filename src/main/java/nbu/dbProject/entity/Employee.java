@@ -37,7 +37,7 @@ public class Employee extends BaseEntity {
     @JoinColumn(name = "company_id", nullable = false)
     private Company company;
 
-    @OneToMany(mappedBy = "employee")
+    @OneToMany(mappedBy = "employee", fetch = FetchType.LAZY)
     private List<Building> buildings = new ArrayList<>();
 
     @Column(nullable = false)

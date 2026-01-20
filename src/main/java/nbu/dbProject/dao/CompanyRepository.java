@@ -71,7 +71,22 @@ public class CompanyRepository {
 
     public Optional<Company> findById(Long id) {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            Company company = session.get(Company.class, id);
+            String hql = "SELECT c FROM Company c " +
+                    "LEFT JOIN FETCH c.employees " +
+                    "WHERE c.id = :id";
+            Query<Company> query = session.createQuery(hql, Company.class);
+            query.setParameter("id", id);
+            Company company = query.uniqueResult();
+
+            if (company != null) {
+                String hql2 = "SELECT c FROM Company c " +
+                        "LEFT JOIN FETCH c.buildings " +
+                        "WHERE c.id = :id";
+                Query<Company> query2 = session.createQuery(hql2, Company.class);
+                query2.setParameter("id", id);
+                query2.uniqueResult();
+            }
+
             return Optional.ofNullable(company);
         } catch (Exception e) {
             logger.error("Error finding company by id", e);
